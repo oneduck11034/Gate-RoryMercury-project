@@ -8,12 +8,13 @@
 #include <string>
 #include <stdlib.h>
 #include <sys/types.h>  //used for various socket attributes, and multi-threading ~ winsock for linux
-#include <sys/socket.h> //socket defined here ~ winsock for linux
-#include <netinet/in.h> //contains information regarding victim ip, port, family
-#include <arpa/inet.h> //parses ip address into network readable
+//#include <netinet/in.h> //contains information regarding victim ip, port, family
+//#include <arpa/inet.h> //parses ip address into network readable
+#include <winsock2.h>
 #include <cstring> //used for strlen()
 #include <vector>  //expandable list
-#include <unistd.h> //sleep function
+//https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-sleep
+#include <synchapi.h> //sleep function
 #include <thread> //multi-threading
 
 using namespace std;
